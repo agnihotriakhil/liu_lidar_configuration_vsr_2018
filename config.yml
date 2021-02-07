@@ -9,5 +9,5 @@ beam_angle :  [-15., -13., -11.,  -9.,  -7.,  -5.,  -3.,  -1.,   1.,   3.,   5.,
 max_itrs : 800
 numb_bees : 100
 estimate_solve_time : True # True or False
-save_result_to_json : True # True or False
+save_result_to_json : True # True or Falsee
 

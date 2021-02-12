@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -13,55 +14,39 @@ const double pi(3.14159265);
 
 extern "C" 
 struct coord{
-  int x;
-  int y;
-  int z;
+    int x;
+    int y;
+    int z;
 };
 
 int manhattan_distance(coord a, coord b){
-  return abs(a.x-b.x)+abs(a.y-b.y)+abs(a.z-b.z);
+    return abs(a.x-b.x)+abs(a.y-b.y)+abs(a.z-b.z);
 }
 
 bool comp_xyz(const coord &a, const coord &b){
-  if(a.x>b.x)
-    return false;
-  else if(a.x==b.x&&a.y>b.y)
-    return false;
-  else if(a.x==b.x&&a.y==b.y&&a.z>b.z)
-    return false;
-  else
-    return true;
+    if(a.x>b.x) return false;
+    else if(a.x==b.x && a.y>b.y) return false;
+    else if(a.x==b.x && a.y==b.y && a.z>b.z) return false;
+    else return true;
 }
 
 bool comp_zxy(const coord &a, const coord &b){
-  if(a.z>b.z)
-    return false;
-  else if(a.z==b.z&&a.x>b.x)
-    return false;
-  else if(a.z==b.z&&a.x==b.x&&a.y>b.y)
-    return false;
-  else
-    return true;
+    if(a.z>b.z) return false;
+    else if(a.z==b.z && a.x>b.x) return false;
+    else if(a.z==b.z && a.x==b.x && a.y>b.y) return false;
+    else return true;
 }
 
 bool comp_yzx(const coord &a, const coord &b){
-  if(a.y>b.y)
-    return false;
-  else if(a.y==b.y&&a.z>b.z)
-    return false;
-  else if(a.y==b.y&&a.z==b.z&&a.x>b.x)
-    return false;
-  else
-    return true;
+    if(a.y>b.y) return false;
+    else if(a.y==b.y && a.z>b.z) return false;
+    else if(a.y==b.y && a.z==b.z && a.x>b.x) return false;
+    else return true;
 }
 
 
-
-
-extern "C" 
-float subspace_segmentation(int* cube_num, float* cube_resolution, int* dead_zone_index,float* lidar_origin,int lidar_num,
-                            int laser_num,long subspace_num_max,float* pitch_angle,float* result)
-{
+void assign_cubes_to_subspaces(int* cube_num, float* cube_resolution, int* dead_zone_index, float* lidar_origin, int lidar_num,
+                               int laser_num,  long subspace_num_max,   float* pitch_angle, vector<coord>* subspace_cube_coordinate){
 
     int cube_x_num=*(cube_num+0);
     int cube_y_num=*(cube_num+1);
@@ -75,9 +60,6 @@ float subspace_segmentation(int* cube_num, float* cube_resolution, int* dead_zon
     int dead_y_high=*(dead_zone_index+3);
     int dead_z_low=*(dead_zone_index+4);
     int dead_z_high=*(dead_zone_index+5);
-  
-    int *subspace_cube_num= new int[subspace_num_max]();//={0};
-    vector<coord> *subspace_cube_coordinate= new vector<coord>[subspace_num_max]();
   
     for(int i=0;i<cube_x_num;i++){
       for(int j=0;j<cube_y_num;j++){
@@ -127,7 +109,7 @@ float subspace_segmentation(int* cube_num, float* cube_resolution, int* dead_zon
                 subspace_index+=m*(laser_num+1)+laser_index;
             }
 
-            subspace_cube_num[subspace_index]+=1;
+            // subspace_cube_num[subspace_index]+=1;
             coord tmp;
             tmp.x=i;
             tmp.y=j;
@@ -136,11 +118,26 @@ float subspace_segmentation(int* cube_num, float* cube_resolution, int* dead_zon
         }
       }
     }
+}
 
+
+extern "C" 
+float subspace_segmentation(int* cube_num, float* cube_resolution, int* dead_zone_index, float* lidar_origin, int lidar_num,
+                            int laser_num,  long subspace_num_max,   float* pitch_angle, float* result)
+{
+  
+    // int* subspace_cube_num= new int[subspace_num_max]();  //={0};
+    
+    vector<coord>* subspace_cube_coordinate= new vector<coord>[subspace_num_max]();
+
+    assign_cubes_to_subspaces(cube_num, cube_resolution, dead_zone_index, lidar_origin, lidar_num, laser_num, 
+                            subspace_num_max, pitch_angle, subspace_cube_coordinate);
+  
     vector<float> vsr; 
  
     for(int i=0;i<subspace_num_max;i++){
-        if(subspace_cube_num[i]==0)
+
+        if(subspace_cube_coordinate[i].size()==0)
             continue;
     
         vector<vector<coord>> results;
@@ -228,6 +225,7 @@ float subspace_segmentation(int* cube_num, float* cube_resolution, int* dead_zon
     float mean = sum / vsr.size(); //均值
 
     float accum  = 0.0;
+    
     std::for_each (std::begin(vsr), std::end(vsr), [&](const float d) {
       accum  += (d-mean)*(d-mean);
     });

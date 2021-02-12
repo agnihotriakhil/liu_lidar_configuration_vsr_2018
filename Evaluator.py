@@ -110,10 +110,12 @@ class Evaluator(object):
         dead_zone_range[4] = c_int(int(self.dead_zone[4] / self.cube_resolution[2]))  #z_dead_low
         dead_zone_range[5] = c_int(int(self.dead_zone[5] / self.cube_resolution[2]))  #z_dead_high
 
+
         self.evaluator.subspace_segmentation(cube_num_send, cube_resolution_send,dead_zone_range,
-                                                    lidar_origin_send, c_int(self.lidar_num), c_int(self.laser_num),
-                                                    c_long(self.subspace_num_max), pitch_angle_send,result)
-        re = []  # max, min,stdev,mean
+                                             lidar_origin_send, c_int(self.lidar_num), c_int(self.laser_num),
+                                             c_long(self.subspace_num_max), pitch_angle_send,result)
+
+        re = []  # max, min, stdev, mean
         for i in range(len(result)):
             re.append(result[i])
         return re[0]
